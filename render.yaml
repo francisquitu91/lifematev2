@@ -4,6 +4,6 @@ services:
     env: static
     branch: master
     region: oregon
-    buildCommand: cd project && npm ci && npm run build
-    publishPath: project/dist
+  buildCommand: npm ci && npm run build
+  publishPath: dist
     autoDeploy: true
