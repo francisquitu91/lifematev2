@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: lifematev2
+    env: static
+    branch: master
+    region: oregon
+    buildCommand: cd project && npm ci && npm run build
+    publishPath: project/dist
+    autoDeploy: true
