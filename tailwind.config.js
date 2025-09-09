@@ -3,9 +3,8 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
-      fontFamily: {
-        'mexicana': ['MexicanaHollow', 'cursive', 'sans-serif'],
-      },
+  // removed 'mexicana' custom font family; use default Tailwind fonts (font-sans) or add new families as needed
+  fontFamily: {},
     },
   },
   plugins: [],

@@ -2,19 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Importar fuente mexicana */
+/* CoopBL font-face */
 @font-face {
-  font-family: 'MexicanaHollow';
-  src: url('/fonts/MexicanaHollow.ttf') format('truetype');
+  font-family: 'CoopBL';
+  src: url('/fonts/COOPBL.TTF') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
-/* Clase personalizada para la fuente mexicana */
-.font-mexicana {
-  font-family: 'MexicanaHollow', cursive, sans-serif;
+.font-coopbl {
+  font-family: 'CoopBL', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
+
+/* Fuente 'MexicanaHollow' removida. Usar las fuentes por defecto del sistema o Tailwind (font-sans). */
 
 @layer utilities {
   .animate-fade-in {
@@ -58,6 +59,26 @@
   }
 }
 
+/* Drop-in animation for the hero logo (falls from top with slight bounce) */
+@keyframes dropIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-120vh);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.animate-drop-in {
+  animation: dropIn 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
@@ -79,4 +100,17 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #dc2626;
+}
+
+/* COOPBL font (user requested). Place COOPBL.TTF in public/fonts or adjust path accordingly. */
+@font-face {
+  font-family: 'COOPBL';
+  src: url('/fonts/COOPBL.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-coopbl {
+  font-family: 'COOPBL', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 }

@@ -1,25 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, Phone, MapPin, Clock, ChefHat, Utensils, Star, Instagram, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Menu, X, Phone, Instagram, ShoppingCart } from 'lucide-react';
 
 const backgroundImages = [
-  "https://static.wixstatic.com/media/5ffcac_f127c5f2095840809d1607e9ccedc46f~mv2.jpg/v1/fill/w_976,h_655,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/5ffcac_f127c5f2095840809d1607e9ccedc46f~mv2.jpg",
-  "https://static.wixstatic.com/media/5ffcac_639756dcea0546ee8b90923ca85ede01~mv2.jpg/v1/fill/w_976,h_655,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/5ffcac_639756dcea0546ee8b90923ca85ede01~mv2.jpg",
-  "https://static.wixstatic.com/media/5ffcac_23412ee0ae0e4dee8925dc755ed48bb6~mv2.jpg/v1/fill/w_976,h_655,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/5ffcac_23412ee0ae0e4dee8925dc755ed48bb6~mv2.jpg",
-  "https://static.wixstatic.com/media/5ffcac_fae5b932ddc546f2afa20f04423a945d~mv2.jpg/v1/fill/w_1518,h_1236,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/5ffcac_fae5b932ddc546f2afa20f04423a945d~mv2.jpg"
+  "https://i.postimg.cc/nzsqsNq6/matealairelibree.jpg",
+  "https://i.postimg.cc/6QPvNzFz/matetermo.jpg",
+  "https://i.postimg.cc/Z579rVYZ/Matechicaguapa.jpg",
 ];
 
-const logo = "https://static.wixstatic.com/media/5ffcac_35a17ca9bc2d4e6391b100d62e75a847~mv2.png/v1/fill/w_600,h_337,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Logo%20La%20Mexicana%20Blanco.png";
+const logo = "https://i.postimg.cc/SNQGmWpG/fixed-20.png";
+// ...existing code... (logoImages removed, using single `logo` image instead)
 
 function App() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [currentInstagramIndex, setCurrentInstagramIndex] = useState(0);
+  // logoIndex removed: footer uses static `logo` image
+  // currentInstagramIndex removed (not used)
+  const [activeCategory, setActiveCategory] = useState<'yerbas' | 'termos'>('yerbas');
+
+  // About mini-section reveal on scroll
+  const aboutRef = useRef<HTMLElement | null>(null);
+  const [aboutVisible, setAboutVisible] = useState(false);
+  const aboutText = `Life Mate transmite la idea de que el mate es más que una bebida: es un compañero de vida, una tradición que une a las personas. El mate, además, simboliza conexión, bienestar y compartir momentos. El nombre resalta cómo esta bebida puede acompañar a las personas en su día a día, siendo parte de su rutina y de sus relaciones personales.`;
+  const [displayedText, setDisplayedText] = useState('');
+  const [cursorVisible, setCursorVisible] = useState(true);
+
+  // Variantes de termo (imagen principal + alternativas)
+  const termoVariants = [
+  'https://i.postimg.cc/hG3RFj4w/Transparent-termo-beige.png',
+  'https://i.postimg.cc/mZHPMKZp/fixed-14.png',
+  'https://i.postimg.cc/FH75kXN7/fixed-15.png',
+  'https://i.postimg.cc/VNQGfx6y/fixed-16.png',
+  'https://i.postimg.cc/k47T8WKf/fixed-17.png',
+  'https://i.postimg.cc/8C4h29fm/fixed-18.png'
+  ];
+  const [termoVariant, setTermoVariant] = useState(0);
 
   // Posts reales de Instagram (orden: reel preferido primero)
   const instagramEmbeds = [
-    "https://www.instagram.com/reel/DLBQv4lP7Xo/",
-    "https://www.instagram.com/p/DIHSuulpmKk/",
-    "https://www.instagram.com/p/DJr063cyyq4/"
+    "https://www.instagram.com/p/DAzU_A-RY8k/",
+    "https://www.instagram.com/p/C_rOpbDx6Wc/",
+    "https://www.instagram.com/p/C7u7fu9RlVI/"
   ];
 
   useEffect(() => {
@@ -37,6 +57,49 @@ function App() {
       }
     };
   }, []);
+
+  // Reveal animation for the mini 'About' section when it scrolls into view
+  useEffect(() => {
+    const el = aboutRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setAboutVisible(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -100px 0px' }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Typing animation: escribe el texto cuando aboutVisible es true
+  useEffect(() => {
+    if (!aboutVisible) return;
+    let idx = 0;
+    const speed = 18; // ms por carácter
+    const typer = setInterval(() => {
+      idx += 1;
+      setDisplayedText(aboutText.slice(0, idx));
+      if (idx >= aboutText.length) {
+        clearInterval(typer);
+      }
+    }, speed);
+
+    // cursor blink
+    const cursor = setInterval(() => {
+      setCursorVisible((v) => !v);
+    }, 500);
+
+    return () => {
+      clearInterval(typer);
+      clearInterval(cursor);
+    };
+  }, [aboutVisible]);
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => 
@@ -46,6 +109,8 @@ function App() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // logo rotation removed; using a single static logo image
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -57,19 +122,14 @@ function App() {
       <nav className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/50 to-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <div className="flex items-center space-x-2">
-              <img
-                src="https://em-content.zobj.net/source/apple/232/flag-for-mexico_1f1f2-1f1fd.png"
-                alt="Bandera de México"
-                className="h-8 w-8 object-contain"
-              />
-              <span className="text-white text-xl font-bold font-mexicana">La Mexicana</span>
+            <div className="flex items-center space-x-2" aria-hidden="true">
+              {/* branding removed on user request */}
             </div>
             
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-8">
               <a href="#inicio" className="text-white hover:text-yellow-400 transition-colors duration-300 font-medium">Inicio</a>
-              <a href="https://www.foodbooking.com/ordering/restaurant/menu?restaurant_uid=7f41adde-e963-456c-8586-137471e638de" target="_blank" rel="noopener noreferrer" className="text-white hover:text-yellow-400 transition-colors duration-300 font-medium">Menú</a>
+              <a href="https://lalista.de/yerbas_de_life_mate" target="_blank" rel="noopener noreferrer" className="text-white hover:text-yellow-400 transition-colors duration-300 font-medium">Menú</a>
               <a href="#contacto" className="text-white hover:text-yellow-400 transition-colors duration-300 font-medium">Contacto</a>
             </div>
 
@@ -87,7 +147,7 @@ function App() {
         <div className={`md:hidden absolute top-0 left-0 right-0 bg-black/95 backdrop-blur-md transform transition-transform duration-300 ${isMenuOpen ? 'translate-y-0' : '-translate-y-full'}`}>
           <div className="px-4 pt-20 pb-6 space-y-6">
             <a href="#inicio" className="block text-white hover:text-yellow-400 transition-colors duration-300 font-medium text-lg">Inicio</a>
-            <a href="https://www.foodbooking.com/ordering/restaurant/menu?restaurant_uid=7f41adde-e963-456c-8586-137471e638de" target="_blank" rel="noopener noreferrer" className="block text-white hover:text-yellow-400 transition-colors duration-300 font-medium text-lg">Menú</a>
+            <a href="https://lalista.de/yerbas_de_life_mate" target="_blank" rel="noopener noreferrer" className="block text-white hover:text-yellow-400 transition-colors duration-300 font-medium text-lg">Menú</a>
             <a href="#contacto" className="block text-white hover:text-yellow-400 transition-colors duration-300 font-medium text-lg">Contacto</a>
           </div>
         </div>
@@ -115,39 +175,43 @@ function App() {
         {/* Hero Content */}
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center px-4 sm:px-6 lg:px-8">
-            {/* Logo */}
-            <div className="mb-8 animate-fade-in">
-              <img
-                src={logo}
-                alt="Logo La Mexicana"
-                className="mx-auto h-32 sm:h-40 lg:h-48 w-auto drop-shadow-2xl"
-              />
+            {/* Logo: absolute so it grows without pushing content */}
+            <div className="relative mb-8">
+              <div className="absolute left-1/2 -top-32 sm:-top-36 md:-top-40 transform -translate-x-1/2 z-0 animate-drop-in pointer-events-none">
+                <img
+                  src={logo}
+                  alt="Logo Life Mate"
+                  className="mx-auto w-[40vw] sm:w-[30vw] md:w-[24vw] lg:w-[20vw] max-w-[480px] h-auto drop-shadow-2xl opacity-95"
+                />
+              </div>
+              {/* spacer so the logo doesn't push content but keeps reasonable room */}
+              <div className="h-28 sm:h-32 md:h-36 lg:h-40" />
             </div>
             
             {/* Welcome Text */}
-            <p className="text-xl sm:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto animate-slide-up animation-delay-300">
-              Auténticos sabores mexicanos que despiertan tus sentidos
+            <p className="text-xl sm:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto animate-slide-up animation-delay-300 font-coopbl">
+              Somos un mayorista comprometido con nuestra Comunidad Matera. ¡Vive el momento!
             </p>
             
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up animation-delay-600">
               <a 
-                href="https://www.foodbooking.com/ordering/?restaurant_uid=7f41adde-e963-456c-8586-137471e638de&site_url=aHR0cHM6Ly93d3cubGFtZXhpY2FuYS5jbC8%3D"
+                href="https://lalista.de/yerbas_de_life_mate"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-xl inline-flex items-center justify-center"
+                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-xl inline-flex items-center justify-center"
               >
-                <Utensils className="inline-block w-5 h-5 mr-2" />
-                Ver Nuestro Menú
+                <ShoppingCart className="inline-block w-5 h-5 mr-2" />
+                Ver Catálogo
               </a>
               <a 
-                href="https://wa.me/56967494740"
+                href="http://wa.me/56921636806"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 backdrop-blur-sm inline-flex items-center justify-center"
               >
                 <Phone className="inline-block w-5 h-5 mr-2" />
-                Hacer Reservación
+                Contáctanos
               </a>
             </div>
           </div>
@@ -172,133 +236,318 @@ function App() {
       {/* About Section */}
 
       {/* NUESTRA HISTORIA — galería ampliada con 3 fotos */}
-      <section id="nosotros" className="py-20 bg-black flex items-center justify-center">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-10">
+      <section
+        id="nosotros"
+        className="py-20 relative flex items-center justify-center"
+        style={{
+          backgroundImage: "url('https://i.postimg.cc/ZKmjTZd8/pexels-miqueas-claus-107016342-17427086.jpg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* overlay for contrast */}
+          <img
+            src="https://i.postimg.cc/ZKmjTZd8/pexels-miqueas-claus-107016342-17427086.jpg"
+            alt="Fondo productos"
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover -z-20 transform transition-transform duration-700"
+            style={{ transform: 'scale(0.70)', filter: 'contrast(1.05) saturate(1.05)' }}
+          />
+          <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+        <div className="relative max-w-6xl mx-auto px-6 sm:px-8 lg:px-10">
           <div className="text-center mb-8">
-            <h2 className="text-4xl md:text-5xl font-bold text-white font-mexicana">NUESTROS PRODUCTOS</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-2 gap-y-1 items-center">
-            <div className="p-0 rounded-3xl flex items-center justify-center overflow-visible">
-              <a
-                href="https://www.foodbooking.com/ordering/restaurant/menu/addons/1806983/mi1806983?restaurant_uid=7f41adde-e963-456c-8586-137471e638de"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Ir a Foodbooking - Producto 1"
-                className="w-full"
+            <h2 className="text-4xl md:text-5xl font-bold text-white font-coopbl uppercase">NUESTROS PRODUCTOS</h2>
+            <div className="mt-6 flex items-center justify-center space-x-3">
+              <button
+                onClick={() => setActiveCategory('yerbas')}
+                className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 ${activeCategory === 'yerbas' ? 'bg-green-600 text-white shadow-lg' : 'bg-white/10 text-white hover:bg-white/20'}`}
               >
-                <img
-                  src="https://static.wixstatic.com/media/5ffcac_e4af7e3745294983beca27552dbbbd85~mv2.png/v1/fill/w_256,h_256,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/5ffcac_e4af7e3745294983beca27552dbbbd85~mv2.png"
-                  alt="Picoteo - Imagen 1"
-                  className="w-full h-80 sm:h-96 md:h-[30rem] object-contain transition-transform duration-500 ease-out transform hover:scale-105 hover:-translate-y-2 hover:rotate-1 cursor-pointer"
-                />
-              </a>
-            </div>
-            <div className="p-0 rounded-3xl flex items-center justify-center overflow-visible">
-              <a
-                href="https://www.foodbooking.com/ordering/restaurant/menu/addons/1807008/mi1807008?restaurant_uid=7f41adde-e963-456c-8586-137471e638de"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Ir a Foodbooking - Producto 2"
-                className="w-full"
+                Yerbas Mate
+              </button>
+              <button
+                onClick={() => setActiveCategory('termos')}
+                className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 ${activeCategory === 'termos' ? 'bg-green-600 text-white shadow-lg' : 'bg-white/10 text-white hover:bg-white/20'}`}
               >
-                <img
-                  src="https://static.wixstatic.com/media/5ffcac_b661c683c6b641e09ce43c74dae76efa~mv2.png/v1/fill/w_256,h_256,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/5ffcac_b661c683c6b641e09ce43c74dae76efa~mv2.png"
-                  alt="Picoteo - Imagen 2"
-                  className="w-full h-80 sm:h-96 md:h-[30rem] object-contain transition-transform duration-500 ease-out transform hover:scale-105 hover:-translate-y-2 hover:rotate-1 cursor-pointer"
-                />
-              </a>
-            </div>
-            <div className="p-0 rounded-3xl flex items-center justify-center overflow-visible">
-              <a
-                href="https://www.foodbooking.com/ordering/restaurant/menu?restaurant_uid=7f41adde-e963-456c-8586-137471e638de"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Ir a Foodbooking - Producto 3"
-                className="w-full"
-              >
-                <img
-                  src="https://static.wixstatic.com/media/5ffcac_7fe770a3204446ada8605f0e32e80921~mv2.png/v1/fill/w_256,h_256,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/5ffcac_7fe770a3204446ada8605f0e32e80921~mv2.png"
-                  alt="Picoteo - Imagen 3"
-                  className="w-full h-80 sm:h-96 md:h-[30rem] object-contain transition-transform duration-500 ease-out transform hover:scale-105 hover:-translate-y-2 hover:rotate-1 cursor-pointer"
-                />
-              </a>
-            </div>
-            <div className="p-0 rounded-3xl flex items-center justify-center overflow-visible">
-              <a
-                href="https://www.foodbooking.com/ordering/restaurant/menu?restaurant_uid=7f41adde-e963-456c-8586-137471e638de"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Ir a Foodbooking - Producto 4"
-                className="w-full"
-              >
-                <img
-                  src="https://static.wixstatic.com/media/5ffcac_cae7263ca0ad4698a69de688439dc6c7~mv2.png/v1/fill/w_256,h_256,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/5ffcac_cae7263ca0ad4698a69de688439dc6c7~mv2.png"
-                  alt="Picoteo - Imagen 4"
-                  className="w-full h-80 sm:h-96 md:h-[30rem] object-contain transition-transform duration-500 ease-out transform hover:scale-105 hover:-translate-y-2 hover:rotate-1 cursor-pointer"
-                />
-              </a>
-            </div>
-            <div className="p-0 rounded-3xl flex items-center justify-center overflow-visible">
-              <a
-                href="https://www.foodbooking.com/ordering/restaurant/menu?restaurant_uid=7f41adde-e963-456c-8586-137471e638de"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Ir a Foodbooking - Producto 5"
-                className="w-full"
-              >
-                <img
-                  src="https://static.wixstatic.com/media/5ffcac_46c328032b2a4939b6b9a88743a31b1e~mv2.png/v1/fill/w_256,h_256,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/5ffcac_46c328032b2a4939b6b9a88743a31b1e~mv2.png"
-                  alt="Picoteo - Imagen 5"
-                  className="w-full h-80 sm:h-96 md:h-[30rem] object-contain transition-transform duration-500 ease-out transform hover:scale-105 hover:-translate-y-2 hover:rotate-1 cursor-pointer"
-                />
-              </a>
-            </div>
-            <div className="p-0 rounded-3xl flex items-center justify-center overflow-visible">
-              <a
-                href="https://www.foodbooking.com/ordering/restaurant/menu?restaurant_uid=7f41adde-e963-456c-8586-137471e638de"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Ir a Foodbooking - Producto 6"
-                className="w-full"
-              >
-                <img
-                  src="https://static.wixstatic.com/media/5ffcac_e3b510a4c05d43cdbfc8f13968cab2b1~mv2.png/v1/fill/w_256,h_256,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/5ffcac_e3b510a4c05d43cdbfc8f13968cab2b1~mv2.png"
-                  alt="Picoteo - Imagen 6"
-                  className="w-full h-80 sm:h-96 md:h-[30rem] object-contain transition-transform duration-500 ease-out transform hover:scale-105 hover:-translate-y-2 hover:rotate-1 cursor-pointer"
-                />
-              </a>
-            </div>
-            <div className="p-0 rounded-3xl flex items-center justify-center overflow-visible">
-              <a
-                href="https://www.foodbooking.com/ordering/restaurant/menu?restaurant_uid=7f41adde-e963-456c-8586-137471e638de"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Ir a Foodbooking - Producto 7"
-                className="w-full"
-              >
-                <img
-                  src="https://static.wixstatic.com/media/5ffcac_770f4829cf6f4e07a3708d5544f3b393~mv2.png/v1/fill/w_256,h_256,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/5ffcac_770f4829cf6f4e07a3708d5544f3b393~mv2.png"
-                  alt="Picoteo - Imagen 7"
-                  className="w-full h-80 sm:h-96 md:h-[30rem] object-contain transition-transform duration-500 ease-out transform hover:scale-105 hover:-translate-y-2 hover:rotate-1 cursor-pointer"
-                />
-              </a>
-            </div>
-            <div className="p-0 rounded-3xl flex items-center justify-center overflow-visible">
-              <a
-                href="https://www.foodbooking.com/ordering/restaurant/menu?restaurant_uid=7f41adde-e963-456c-8586-137471e638de"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Ir a Foodbooking - Producto 8"
-                className="w-full"
-              >
-                <img
-                  src="https://static.wixstatic.com/media/5ffcac_c500a04459a14e5cbdf480e3ffc6716a~mv2.png/v1/fill/w_256,h_256,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/5ffcac_c500a04459a14e5cbdf480e3ffc6716a~mv2.png"
-                  alt="Picoteo - Imagen 8"
-                  className="w-full h-80 sm:h-96 md:h-[30rem] object-contain transition-transform duration-500 ease-out transform hover:scale-105 hover:-translate-y-2 hover:rotate-1 cursor-pointer"
-                />
-              </a>
+                Termos
+              </button>
             </div>
           </div>
+          {activeCategory === 'yerbas' && (
+            <div className="flex flex-col gap-y-8">
+            <div className="p-4 rounded-3xl flex flex-col md:flex-row items-center gap-6">
+              <div className="w-full md:w-1/2 flex items-center justify-center">
+                {/* Contenedor visual grande; el área clicable es la caja centrada para evitar clicks en zonas transparentes */}
+                <div className="w-4/5 md:w-5/6 lg:w-4/5 flex items-center justify-center">
+                    <a
+                    href="https://lalista.de/yerbas_de_life_mate"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Ir a Foodbooking - Producto 1"
+                      className="inline-block"
+                  >
+                    <div className="relative overflow-visible rounded-xl flex items-center justify-center">
+                      <img
+                        src="https://i.postimg.cc/GpR7CYw9/Sara-transparent.png"
+                        alt="Producto 1"
+                          className="w-full h-auto max-h-[90vh] object-contain transform scale-[1.35] transition-transform duration-700 hover:scale-[1.6] cursor-pointer"
+                      />
+                    </div>
+                  </a>
+                </div>
+              </div>
+              <div className="w-full md:w-1/2 text-left text-white">
+                <h3 className="text-2xl md:text-3xl font-bold font-coopbl">Yerba Sara</h3>
+                <p className="mt-2 text-gray-200 font-coopbl lowercase"> Origen brasileño
+su corte incluye una
+mezcla de hojas, polvo
+y un bajo porcentaje de
+palillo, con una textura
+muy fina de sabor
+intenso y ligeramente
+amargo</p>
+              </div>
+            </div>
+            <div className="p-4 rounded-3xl flex flex-col md:flex-row items-center gap-6">
+              <div className="w-full md:w-1/2 flex items-center justify-center">
+                <div className="w-4/5 md:w-5/6 lg:w-4/5 flex items-center justify-center">
+                    <a
+                    href="https://www.foodbooking.com/ordering/restaurant/menu/addons/1807008/mi1807008?restaurant_uid=7f41adde-e963-456c-8586-137471e638de"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Ir a Foodbooking - Producto 2"
+                      className="inline-block"
+                  >
+                    <div className="relative overflow-visible rounded-xl flex items-center justify-center">
+                      <img
+                        src="https://i.postimg.cc/7hHH5XCc/BALDO-2.png"
+                        alt="Producto 2"
+                          className="w-full h-auto max-h-[90vh] object-contain transform scale-[1.35] transition-transform duration-700 hover:scale-[1.6] cursor-pointer"
+                      />
+                    </div>
+                  </a>
+                </div>
+              </div>
+              <div className="w-full md:w-1/2 text-left text-white">
+                <h3 className="text-2xl md:text-3xl font-bold font-coopbl">Yerba Baldo</h3>
+                <p className="mt-2 text-gray-200 font-coopbl">Origen brasileño. Corte fino y polvoriento, secado sin humo, que ofrece un sabor fresco y herbáceo sin amargura intensa; adecuada para diferentes estilos de consumo de mate.</p>
+              </div>
+            </div>
+            <div className="p-4 rounded-3xl flex flex-col md:flex-row items-center gap-6">
+              <div className="w-full md:w-1/2 flex items-center justify-center">
+                <div className="w-4/5 md:w-5/6 lg:w-4/5 flex items-center justify-center">
+                    <a
+                    href="https://lalista.de/yerbas_de_life_mate"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Ir a Foodbooking - Producto 3"
+                      className="inline-block"
+                  >
+                    <div className="relative overflow-visible rounded-xl flex items-center justify-center">
+                      <img
+                        src="https://i.postimg.cc/8CwDqMXm/fixed-3.png"
+                        alt="Producto 3"
+                          className="w-full h-auto max-h-[90vh] object-contain transform scale-[1.35] transition-transform duration-700 hover:scale-[1.6] cursor-pointer"
+                      />
+                    </div>
+                  </a>
+                </div>
+              </div>
+              <div className="w-full md:w-1/2 text-left text-white">
+  <h3 className="text-2xl md:text-3xl font-bold font-coopbl">Yerba Canarias Edición Especial</h3>
+  <p className="mt-2 text-gray-200 font-coopbl">Origen brasileño. Yerba sin palo, con un corte muy fino y una alta proporción de polvo; se seca sin humo, por lo que su sabor es limpio, fuerte y amargo.</p>
+              </div>
+            </div>
+            <div className="p-4 rounded-3xl flex flex-col md:flex-row items-center gap-6">
+              <div className="w-full md:w-1/2 flex items-center justify-center">
+                <div className="w-4/5 md:w-5/6 lg:w-4/5 flex items-center justify-center">
+                    <a
+                    href="https://lalista.de/yerbas_de_life_mate"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Ir a Foodbooking - Producto 4"
+                      className="inline-block"
+                  >
+                    <div className="relative overflow-visible rounded-xl flex items-center justify-center">
+                      <img
+                        src="https://i.postimg.cc/zXPxPBkH/fixed-4.png"
+                        alt="Producto 4"
+                          className="w-full h-auto max-h-[90vh] object-contain transform scale-[1.35] transition-transform duration-700 hover:scale-[1.6] cursor-pointer"
+                      />
+                    </div>
+                  </a>
+                </div>
+              </div>
+              <div className="w-full md:w-1/2 text-left text-white">
+                <h3 className="text-2xl md:text-3xl font-bold font-coopbl">Yerba Esmeralda</h3>
+                <p className="mt-2 text-gray-200 font-coopbl"> Origen brasileño. Esta yerba ofrece un sabor suave y fresco, sin tonos amargos excesivos. Su molienda fina asegura una rápida liberación de sabor, ideal para quienes disfrutan de un mate constante y fácil.</p>
+              </div>
+            </div>
+            <div className="p-4 rounded-3xl flex flex-col md:flex-row items-center gap-6">
+              <div className="w-full md:w-1/2 flex items-center justify-center">
+                <div className="w-4/5 md:w-5/6 lg:w-4/5 flex items-center justify-center">
+                    <a
+                    href="https://lalista.de/yerbas_de_life_mate"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Ir a Foodbooking - Producto 5"
+                      className="inline-block"
+                  >
+                    <div className="relative overflow-visible rounded-xl flex items-center justify-center">
+                      <img
+                        src="https://i.postimg.cc/YCrb9FqP/fixed-5.png"
+                        alt="Producto 5"
+                          className="w-full h-auto max-h-[90vh] object-contain transform scale-[1.35] transition-transform duration-700 hover:scale-[1.6] cursor-pointer"
+                      />
+                    </div>
+                  </a>
+                </div>
+              </div>
+              <div className="w-full md:w-1/2 text-left text-white">
+                <h3 className="text-2xl md:text-3xl font-bold font-coopbl">Yerba Canarias Té Verde y Jengibre</h3>
+                <p className="mt-2 text-gray-200 font-coopbl">Una fusión perfecta para tu bienestar: yerba mate elaborada a partir de la reconocida yerba canaria, potenciada con té verde y jengibre. Aprovecha el poder antioxidante del té verde mientras el jengibre te ayuda a mantener una digestión saludable.</p>
+              </div>
+            </div>
+            {/* Productos limitados a 1-5 según petición del usuario */}
+          </div>
+          )}
+          {activeCategory === 'termos' && (
+            <div className="flex flex-col gap-y-8">
+              <div className="p-4 rounded-3xl flex flex-col md:flex-row items-center gap-6">
+                <div className="w-full md:w-1/2 flex items-center justify-center">
+                  <div className="w-4/5 md:w-5/6 lg:w-4/5 flex items-center justify-center">
+                    <div className="flex items-center w-full">
+                      <div className="hidden md:flex flex-col space-y-3 mr-4">
+                        {termoVariants.map((v, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setTermoVariant(i)}
+                            className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${i === termoVariant ? 'border-yellow-400' : 'border-transparent'} bg-white/5`}
+                            aria-label={`Variante ${i + 1}`}
+                          >
+                            <img src={v} alt={`Variante ${i + 1}`} className="w-full h-full object-contain" />
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex-1">
+                        <a
+                          href="https://lalista.de/yerbas_de_life_mate"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Ir al catálogo - Termo Termolar"
+                          className="inline-block w-full"
+                        >
+                          <div className="relative overflow-visible rounded-xl flex items-center justify-center">
+                            <img
+                              src={termoVariants[termoVariant]}
+                              alt="Termo De Acero Inoxidable Termolar"
+                              className="w-full h-auto max-h-[90vh] object-contain transform scale-[1.0] transition-transform duration-700 hover:scale-[1.02] cursor-pointer"
+                            />
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full md:w-1/2 text-left text-white">
+                  <h3 className="text-2xl md:text-3xl font-bold font-coopbl">Termo De Acero Inoxidable Termolar</h3>
+                  <p className="mt-2 text-gray-200 font-coopbl">Termo especial para cebadores de alta calidad de capacidad 1 litro, interior y exterior 100% acero inoxidable, irrompible, con almohada anti-ruido, aislamiento térmico al vacío y vaso protector.</p>
+                  <ul className="mt-4 text-gray-200 list-disc list-inside space-y-1">
+                    <li>Mantiene agua caliente hasta 20 horas</li>
+                    <li>Mantiene agua fría hasta 36 horas</li>
+                    <li>Con manilla</li>
+                    <li>Capacidad: 1 litro</li>
+                    <li>Tapa con pico cebado</li>
+                  </ul>
+                </div>
+              </div>
+              {/* Termo especial — Edición Especial Uruguay (producto independiente) */}
+              <div className="p-4 rounded-3xl flex flex-col md:flex-row items-center gap-6">
+                <div className="w-full md:w-1/2 flex items-center justify-center">
+                  <div className="w-4/5 md:w-5/6 lg:w-4/5 flex items-center justify-center">
+                    <a
+                      href="https://lalista.de/yerbas_de_life_mate"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Ir al catálogo - Termo Edición Uruguay"
+                      className="inline-block w-full"
+                    >
+                      <div className="relative overflow-visible rounded-xl flex items-center justify-center">
+                        <img
+                          src="https://i.postimg.cc/8cQh86mL/Termolar-Uruguay-1-lt-transparent.png"
+                          alt="Termo Termolar Edición Especial Uruguay"
+                          className="w-full h-auto max-h-[90vh] object-contain transform scale-[1.0] transition-transform duration-700 hover:scale-[1.02] cursor-pointer"
+                        />
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                <div className="w-full md:w-1/2 text-left text-white">
+                  <h3 className="text-2xl md:text-3xl font-bold font-coopbl">Termo De Acero Inoxidable Termolar — Edición Especial Uruguay</h3>
+                  <p className="mt-2 text-gray-200 font-coopbl">Termo especial para cebadores de alta calidad de capacidad 1 litro, interior y exterior 100% acero inoxidable, irrompible, con almohada anti-ruido, aislamiento térmico al vacío y vaso protector.</p>
+                  <ul className="mt-4 text-gray-200 list-disc list-inside space-y-1">
+                    <li>Mantiene agua caliente hasta 20 horas</li>
+                    <li>Mantiene agua fría hasta 36 horas</li>
+                    <li>Con manilla</li>
+                    <li>Capacidad: 1 litro</li>
+                    <li>Tapa con pico cebado</li>
+                  </ul>
+                </div>
+              </div>
+              {/* Termo especial — Edición Grabado Argentina (producto independiente) */}
+              <div className="p-4 rounded-3xl flex flex-col md:flex-row items-center gap-6">
+                <div className="w-full md:w-1/2 flex items-center justify-center">
+                  <div className="w-4/5 md:w-5/6 lg:w-4/5 flex items-center justify-center">
+                    <a
+                      href="https://lalista.de/yerbas_de_life_mate"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Ir al catálogo - Termo Edición Argentina"
+                      className="inline-block w-full"
+                    >
+                      <div className="relative overflow-visible rounded-xl flex items-center justify-center">
+                        <img
+                          src="https://i.postimg.cc/TYntPRyR/Termolar-Argentina-1-lt-transparent.png"
+                          alt="Termo Termolar Edición Grabado Argentina"
+                          className="w-full h-auto max-h-[90vh] object-contain transform scale-[1.0] transition-transform duration-700 hover:scale-[1.02] cursor-pointer"
+                        />
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                <div className="w-full md:w-1/2 text-left text-white">
+                  <h3 className="text-2xl md:text-3xl font-bold font-coopbl">Termo De Acero Inoxidable Termolar — Edición Grabado Argentina</h3>
+                  <p className="mt-2 text-gray-200 font-coopbl">Termo especial para cebadores de alta calidad de capacidad 1 litro, interior y exterior 100% acero inoxidable, irrompible, con almohada anti-ruido, aislamiento térmico al vacío y vaso protector.</p>
+                  <ul className="mt-4 text-gray-200 list-disc list-inside space-y-1">
+                    <li>Mantiene agua caliente hasta 20 horas</li>
+                    <li>Mantiene agua fría hasta 36 horas</li>
+                    <li>Con manilla</li>
+                    <li>Capacidad: 1 litro</li>
+                    <li>Tapa con pico cebado</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Mini 'About / Message' Section (above Instagram) */}
+      <section
+        ref={aboutRef}
+        className={`py-24 md:py-36 relative min-h-[40vh] md:min-h-[65vh] transform transition-all duration-700 ease-out ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        style={{
+          backgroundImage: "url('https://i.postimg.cc/90f5PrvH/Mate-de-fondo.jpg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-black/60 pointer-events-none" />
+        <div className="relative max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 text-center flex flex-col items-center justify-center h-full">
+          <h3 className="text-5xl md:text-6xl font-bold text-white font-coopbl mb-8">Life Mate</h3>
+          <p className="text-lg md:text-3xl text-gray-200 leading-relaxed max-w-4xl mx-auto px-2 md:px-0 whitespace-pre-wrap text-left">
+            {displayedText}
+            <span className={`inline-block ml-1 w-3 ${cursorVisible ? 'bg-white' : 'bg-transparent'} h-7 align-middle`} />
+          </p>
         </div>
       </section>
 
@@ -306,7 +555,7 @@ function App() {
       <section
         className="py-20 relative"
         style={{
-          backgroundImage: "url('https://tb-static.uber.com/prod/image-proc/processed_images/95ac7f078699f45c0ca45dc1048d754b/16bb0a3ab8ea98cfe8906135767f7bf4.jpeg')",
+          backgroundImage: "url('https://i.postimg.cc/fRFgQtw9/mate-con-pose.jpg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -315,20 +564,20 @@ function App() {
         <div className="absolute inset-0 bg-black/60 pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white font-mexicana mb-6">
+            <h2 className="text-4xl font-bold text-white font-coopbl mb-6">
               NUESTRO INSTAGRAM
             </h2>
-            <p className="text-xl text-gray-300 mb-8">
-              Descubre nuestros platillos más deliciosos y momentos especiales
+            <p className="text-xl text-gray-300 mb-8 font-coopbl">
+              Para el verdadero amante del mate, Lifemate presenta la mejor selección de accesorios de alta calidad y diseño exclusivo. Navega por nuestros materos, bolsos y bombillas.
             </p>
-            <a 
-              href="https://www.instagram.com/lamexicanach/" 
+              <a 
+              href="https://www.instagram.com/lifematecl/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
               <Instagram className="w-5 h-5 mr-2" />
-              @lamexicanach
+              @lifematecl
             </a>
           </div>
 
@@ -434,105 +683,7 @@ function App() {
         </div>
       </section>
 
-  {/* Location and Contact Section */}
-  <section id="contacto"
-        className="py-20 bg-gray-900 relative"
-        style={{
-          backgroundImage: "url('https://i.postimg.cc/HnRP49cn/Whats-App-Image-2025-08-18-at-11-19-29-PM.jpg')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        {/* overlay to improve text contrast */}
-        <div className="absolute inset-0 bg-black/60 pointer-events-none" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Contact Information */}
-            <div className="space-y-8">
-              <h2 className="text-3xl font-bold text-white mb-8 font-mexicana">Contacto</h2>
-              
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="bg-red-600 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Teléfono</h3>
-                    <p className="text-gray-300">+56 9 6749 4740</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="bg-red-600 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Dirección</h3>
-                    <p className="text-gray-300">
-                      Av. Valparaíso 1137<br />
-                      Viña del Mar, Chile
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="bg-red-600 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Clock className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Horarios</h3>
-                    <p className="text-gray-300">
-                      Lun - Jue: 12:00 - 22:30<br />
-                      Vie - Sab: 12:00 - 23:30<br />
-                      Dom: Cerrado
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Location Map */}
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-8 font-mexicana">Encuentranos</h2>
-              <p className="text-gray-300 mb-6">
-                Encuentranos fácilmente en el corazón de Viña del Mar. Estamos ubicados en una zona privilegiada con fácil acceso.
-              </p>
-              
-              <div className="bg-gray-800 rounded-xl overflow-hidden shadow-xl">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3344.8234567890123!2d-71.5519!3d-33.0247!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9689de75010857cb%3A0x64eab8c19ef81afa!2sla%20mexicana!5e0!3m2!1ses!2scl!4v1234567890123!5m2!1ses!2scl"
-                  width="100%"
-                  height="300"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="w-full"
-                ></iframe>
-                
-                <div className="p-6 flex flex-col sm:flex-row gap-4">
-                  <a
-                    href="https://www.google.com/maps/place/la+mexicana/data=!4m2!3m1!1s0x9689de75010857cb:0x64eab8c19ef81afa?sa=X&ved=1t:242&ictx=111"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold text-center transition-colors duration-300"
-                  >
-                    Ver en Google Maps
-                  </a>
-                  <a
-                    href="https://www.google.com/maps/dir//la+mexicana/@-33.0247,-71.5519,15z"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold text-center transition-colors duration-300"
-                  >
-                    Cómo Llegar
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+  
 
       {/* Footer */}
       <footer className="bg-gray-900 py-8">
@@ -540,25 +691,25 @@ function App() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <img
-                src="https://em-content.zobj.net/source/apple/232/flag-for-mexico_1f1f2-1f1fd.png"
-                alt="Bandera de México"
-                className="h-6 w-6 object-contain"
+                src={logo}
+                alt="Bandera / Logo"
+                className="h-24 w-24 object-contain"
               />
-              <span className="text-white text-lg font-bold font-mexicana">La Mexicana</span>
+              <div className="flex flex-col md:flex-row md:items-center">
+                <span className="text-white text-lg font-bold font-coopbl">Lifemate</span>
+                <span className="text-gray-400 text-sm md:ml-4 mt-1 md:mt-0">© 2024 Lifemate. Todos los derechos reservados.</span>
+              </div>
             </div>
-            <p className="text-gray-400 text-sm">
-              © 2024 La Mexicana. Todos los derechos reservados.
-            </p>
           </div>
         </div>
       </footer>
 
       {/* Botón flotante de WhatsApp */}
       {/* Botones flotantes de redes sociales */}
-      <div className="fixed bottom-6 right-6 flex flex-row space-x-3 z-50">
+  <div className="fixed bottom-10 right-12 flex flex-row space-x-4 z-50 md:bottom-12 md:right-16">
         {/* Botón de WhatsApp */}
         <a 
-          href="https://wa.me/56967494740" 
+          href="http://wa.me/56921636806" 
           target="_blank" 
           rel="noopener noreferrer"
           className="w-20 h-20 transition-transform duration-300 hover:scale-110"
@@ -572,7 +723,7 @@ function App() {
         
         {/* Botón de Instagram */}
         <a 
-          href="https://www.instagram.com/lamexicanach/" 
+          href="https://www.instagram.com/lifematecl/" 
           target="_blank" 
           rel="noopener noreferrer"
           className="w-20 h-20 transition-transform duration-300 hover:scale-110"
@@ -584,18 +735,18 @@ function App() {
           />
         </a>
         
-        {/* Botón de UberEats */}
+        {/* Botón de TikTok */}
         <a
-          href="https://www.ubereats.com/cl-en/valparaiso/food-delivery/taqueria-la-mexicana/bnlcRsz9QdSgzgT8ee2yIQ"
+          href="https://www.tiktok.com/@lifematecl?_t=ZM-8w3l1Ld9irt&_r=1&fbclid=PAZXh0bgNhZW0CMTEAAae0nSeGQhU0VBADGkDSBRE9w2Dr4hCsXRzfro2NHMWbwyrvJOY-W3MYS5CdQg_aem_yCQZ6WL8JLRnYsZr8KyEzg"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-20 h-20 rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-110 flex items-center justify-center bg-transparent"
+          className="w-20 h-20 rounded-full overflow-hidden transition-transform duration-300 hover:scale-110 flex items-center justify-center bg-transparent"
         >
           <img
-            src="https://i.postimg.cc/SR54H95Y/1200x630wa-removebg-preview.png"
-            alt="UberEats La Mexicana"
-            className="w-full h-full object-contain transform transition-transform duration-300"
-            style={{ transform: 'scale(2.4)', transformOrigin: 'center' }}
+            src="https://i.postimg.cc/wBp3d75G/Tik-Tok-logo.jpg"
+            alt="TikTok Life Mate"
+            className="w-full h-full object-contain transform transition-transform duration-300 p-2"
+            style={{ transform: 'scale(1)', transformOrigin: 'center' }}
           />
         </a>
       </div>
