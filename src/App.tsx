@@ -129,8 +129,8 @@ function App() {
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-8">
               <a href="#inicio" className="text-white hover:text-yellow-400 transition-colors duration-300 font-medium">Inicio</a>
-              <a href="https://lalista.de/yerbas_de_life_mate" target="_blank" rel="noopener noreferrer" className="text-white hover:text-yellow-400 transition-colors duration-300 font-medium">Menú</a>
-              <a href="#contacto" className="text-white hover:text-yellow-400 transition-colors duration-300 font-medium">Contacto</a>
+              <a href="https://lalista.de/yerbas_de_life_mate" target="_blank" rel="noopener noreferrer" className="text-white hover:text-yellow-400 transition-colors duration-300 font-medium">Catálogo</a>
+              <a href="http://wa.me/56921636806" target="_blank" rel="noopener noreferrer" className="text-white hover:text-yellow-400 transition-colors duration-300 font-medium inline-flex items-center gap-2"><Phone className="w-4 h-4" />Contacto</a>
             </div>
 
             {/* Mobile Menu Button */}
@@ -147,8 +147,8 @@ function App() {
         <div className={`md:hidden absolute top-0 left-0 right-0 bg-black/95 backdrop-blur-md transform transition-transform duration-300 ${isMenuOpen ? 'translate-y-0' : '-translate-y-full'}`}>
           <div className="px-4 pt-20 pb-6 space-y-6">
             <a href="#inicio" className="block text-white hover:text-yellow-400 transition-colors duration-300 font-medium text-lg">Inicio</a>
-            <a href="https://lalista.de/yerbas_de_life_mate" target="_blank" rel="noopener noreferrer" className="block text-white hover:text-yellow-400 transition-colors duration-300 font-medium text-lg">Menú</a>
-            <a href="#contacto" className="block text-white hover:text-yellow-400 transition-colors duration-300 font-medium text-lg">Contacto</a>
+            <a href="https://lalista.de/yerbas_de_life_mate" target="_blank" rel="noopener noreferrer" className="block text-white hover:text-yellow-400 transition-colors duration-300 font-medium text-lg">Catálogo</a>
+            <a href="http://wa.me/56921636806" target="_blank" rel="noopener noreferrer" className="block text-white hover:text-yellow-400 transition-colors duration-300 font-medium text-lg inline-flex items-center gap-2"><Phone className="w-4 h-4" />Contacto</a>
           </div>
         </div>
       </nav>
@@ -289,7 +289,7 @@ function App() {
                       <img
                         src="https://i.postimg.cc/GpR7CYw9/Sara-transparent.png"
                         alt="Producto 1"
-                          className="w-full h-auto max-h-[90vh] object-contain transform scale-[1.35] transition-transform duration-700 hover:scale-[1.6] cursor-pointer"
+                          className="w-full h-auto max-h-[90vh] object-contain transform scale-[1.15] transition-transform duration-700 hover:scale-[1.28] origin-center cursor-pointer"
                       />
                     </div>
                   </a>
